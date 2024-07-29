@@ -9,7 +9,7 @@ class GameEngine
     @guesses = []
     @feedback = []
     @mode = nil
-    @difficulty = nil
+    @difficulty = EASY
   end
 
   def play
@@ -53,6 +53,43 @@ class GameEngine
   end
 
   def play_as_codemaker
+    init_codemaker
+    display
+    gets
+    12.times do |i|
+      guess = make_guess
+      feedback = generate_feedback(guess)
+      @guesses << guess
+      display
+      if feedback == '+ + + + '
+        puts 'The Codebreaker has cracked the code!'
+        break
+      end
+      gets
+    end
+  end
+
+  def init_codemaker
+    puts 'You are the Codemaker. Set a code consisting of 4 numbers between 1 and 6.'
+    puts 'The Codebreaker will have 12 guesses to crack it.'
+    puts 'Press Enter to continue.'
+    gets
+    4.times do
+      print 'Enter a number between 1 and 6: '
+      num = gets.chomp.to_i
+      until (1..6).cover?(num)
+        puts 'Invalid input. Please enter a number between 1 and 6.'
+        num = gets.chomp.to_i
+      end
+      @code << num
+    end
+    puts "The code has been set to #{@code}. Press Enter to continue."
+    gets
+  end
+
+  # Computer guess - TODO: Implement AI
+  def make_guess
+    [rand(1..6), rand(1..6), rand(1..6), rand(1..6)]
   end
 
   def play_as_codebreaker
@@ -90,12 +127,11 @@ class GameEngine
 
   def display
     system('clear') || system('cls')
-    puts '         X-X-X-X'
-    puts '--------------------'
-    if @difficulty == EASY
-      puts 'Feedback: + means a correct number in the correct position, - means a correct number in the wrong position, and / means a wrong number.'
-      puts '--------------------'
-    end
+    display_header
+    display_body
+  end
+
+  def display_body
     12.times do |i|
       print "Guess ##{i + 1}: "
       if @guesses[i]
@@ -107,7 +143,28 @@ class GameEngine
       puts "Feedback: #{@feedback[i] || 'No feedback yet'}"
       puts
     end
-    print 'Enter your guess: '
+    print 'Enter your guess: ' if @mode == CODEBREAKER
+    print 'Press Enter for next computer guess.' if @mode == CODEMAKER
+  end
+
+  def display_header
+    puts '--------------------'
+    puts '        Mastermind'
+    puts '--------------------'
+    if @mode == CODEMAKER
+      puts '         Codemaker'
+      print 'Code:    '
+      @code.each { |num| print "#{num} " }
+      puts
+    else
+      puts 'Codebreaker'
+      puts 'Code:    X-X-X-X'
+    end
+    puts '--------------------'
+    return unless @difficulty == EASY
+
+    puts 'Feedback: + means a correct number in the correct position, - means a correct number in the wrong position, and / means a wrong number.'
+    puts '--------------------'
   end
 
   def generate_feedback(guess)
