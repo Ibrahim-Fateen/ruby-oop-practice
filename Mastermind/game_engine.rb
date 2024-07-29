@@ -1,3 +1,5 @@
+require_relative 'guesser'
+
 class GameEngine
   CODEMAKER = '1'.freeze
   CODEBREAKER = '2'.freeze
@@ -10,11 +12,13 @@ class GameEngine
     @feedback = []
     @mode = nil
     @difficulty = EASY
+    @guesser = nil
   end
 
   def play
     greet
     if @mode == CODEMAKER
+      @guesser = Guesser.new
       play_as_codemaker
     else
       play_as_codebreaker
@@ -57,7 +61,8 @@ class GameEngine
     display
     gets
     12.times do |i|
-      guess = make_guess
+      guess = @guesser.make_guess(@feedback.last, @guesses.last)
+      # guess = @guesser.make_guess('+ + + +', [1, 2, 1, 1])
       feedback = generate_feedback(guess)
       @guesses << guess
       display
@@ -85,11 +90,6 @@ class GameEngine
     end
     puts "The code has been set to #{@code}. Press Enter to continue."
     gets
-  end
-
-  # Computer guess - TODO: Implement AI
-  def make_guess
-    [rand(1..6), rand(1..6), rand(1..6), rand(1..6)]
   end
 
   def play_as_codebreaker
