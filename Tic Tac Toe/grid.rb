@@ -6,9 +6,12 @@ class Grid
   end
 
   def display
+    system('clear') || system('cls')
+    puts '  0 1 2'
     @grid.each_with_index do |row, index|
+      print "#{index} "
       puts row.join('|')
-      puts '-----' unless index == 2
+      puts '  -----' unless index == 2
     end
   end
 
