@@ -112,20 +112,32 @@ class GameEngine
 
   def generate_feedback(guess)
     feedback = ''
-    correct_num = 0
+    code_dup = @code.dup
     correct_pos = 0
+    correct_num = 0
+
+    # First pass: Check for correct positions
     guess.each_with_index do |num, i|
-      correct_pos += 1 if @code[i] == num
-      correct_num += 1 if @code.include?(num)
-      feedback << if @code[i] == num
-                    '+ '
-                  elsif @code.include?(num)
-                    '- '
-                  else
-                    '/ '
-                  end
+      if code_dup[i] == num
+        correct_pos += 1
+        correct_num += 1
+        code_dup[i] = nil # Mark this position as matched
+        feedback << '+ '
+      end
+
+      # Second pass: Check for correct numbers in wrong positions
+      next if @code[i] == num # Skip already matched positions
+
+      if code_dup.include?(num)
+        correct_num += 1
+        code_dup[code_dup.index(num)] = nil # Mark this number as matched
+        feedback << '- '
+      else
+        feedback << '/ '
+      end
     end
-    hard_feedback_message = "You have #{correct_num} correct numbers and #{correct_pos} correct positions."
+
+    hard_feedback_message = "You have #{correct_num} correct numbers with #{correct_pos} of them in the correct positions."
     @feedback << (@difficulty == EASY ? feedback : hard_feedback_message)
     feedback
   end
