@@ -49,6 +49,14 @@ class GameEngine
         @game_over = true
         break
       end
+      if checkmate?(@opponent.color)
+        checkmate(@current_player.color)
+        break
+      end
+      if stalemate?(@opponent.color)
+        stalemate
+        break
+      end
       switch_players
     end
   end
@@ -83,13 +91,26 @@ class GameEngine
     all_pieces = @players.map(&:pieces).flatten
     return if selected_piece.is_a?(Pawn) && en_passant?(selected_piece, final)
 
-    raise InvalidMoveException, 'Not supported' unless selected_piece.valid_move?(final, all_pieces)
+    raise InvalidMoveException, 'Not supported.' unless selected_piece.valid_move?(final, all_pieces)
+    raise InvalidMoveException, 'King is in Check.' if @board.simulate_move(selected_piece, final, all_pieces)
 
     @history << [selected_piece.dup, initial, final]
     selected_piece.move(final, all_pieces)
     return unless selected_piece.is_a?(Pawn) && (selected_piece.position[0].zero? || selected_piece.position[0] == 7)
 
     @current_player.pieces << selected_piece.promote
+  end
+
+  def checkmate(color)
+    puts 'Checkmate!'
+    puts "Congratulations, #{color} wins!"
+    @game_over = true
+  end
+
+  def stalemate
+    puts 'Stalemate!'
+    puts 'It\'s a draw!'
+    @game_over = true
   end
 
   def move_from_user
@@ -143,6 +164,26 @@ class GameEngine
   def check?
     opponent_king = @opponent.pieces.find { |piece| piece.is_a?(King) && !piece.is_dead }
     @current_player.attacks?(opponent_king.position, @players.map(&:pieces).flatten)
+  end
+
+  def checkmate?(color)
+    all_pieces = @players.map(&:pieces).flatten
+    current_player_pieces = all_pieces.select { |p| p.color == color && !p.is_dead }
+    current_player_pieces.all? do |piece|
+      piece.valid_moves(all_pieces).all? do |move|
+        @board.simulate_move(piece, move, all_pieces)
+      end
+    end && @board.king_in_check?(color, all_pieces)
+  end
+
+  def stalemate?(color)
+    all_pieces = @players.map(&:pieces).flatten
+    current_player_pieces = all_pieces.select { |p| p.color == color && !p.is_dead }
+    current_player_pieces.all? do |piece|
+      piece.valid_moves(all_pieces).all? do |move|
+        @board.simulate_move(piece, move, all_pieces)
+      end
+    end && !@board.king_in_check?(color, all_pieces)
   end
 
   def save_game

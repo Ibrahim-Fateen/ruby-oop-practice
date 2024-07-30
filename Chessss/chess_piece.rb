@@ -23,6 +23,12 @@ class ChessPiece
     sees?(target_position, all_pieces, attack_vectors)
   end
 
+  def valid_moves(all_pieces)
+    (0..7).to_a.product((0..7).to_a).select do |target_position|
+      valid_move?(target_position, all_pieces)
+    end
+  end
+
   def valid_move?(target_position, all_pieces)
     vectors = if all_pieces.any? do |piece|
       piece.position == target_position && !piece.is_dead && piece.color != @color
@@ -47,6 +53,10 @@ class ChessPiece
 
   def kill
     @is_dead = true
+  end
+
+  def revive
+    @is_dead = false
   end
 
   protected
