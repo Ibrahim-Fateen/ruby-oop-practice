@@ -25,9 +25,10 @@ class GameControl
   end
 
   def load_game
-    # game_engine = GameEngine.new
-    # get moves file
-    # load moves to game engine and play
+    system ('clear') || system('cls')
+    puts 'Enter the name of the file you want to load:'
+    file_name = gets.chomp
+    GameEngine.new(file_name).play
   end
 
   def start_new

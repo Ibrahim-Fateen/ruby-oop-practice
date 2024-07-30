@@ -79,7 +79,7 @@ end
 class King < ChessPiece
   def initialize(color, position)
     super
-    @symbol = color == 'white' ? '♔' : '♚'
+    @symbol = color == 'black' ? '♔' : '♚'
     @move_vectors = [TOP_RIGHT, TOP_LEFT, BOTTOM_RIGHT, BOTTOM_LEFT, UP, DOWN, RIGHT, LEFT]
     @attack_vectors = @move_vectors
     @max_displacement = 1
@@ -89,7 +89,7 @@ end
 class Queen < ChessPiece
   def initialize(color, position)
     super
-    @symbol = color == 'white' ? '♕' : '♛'
+    @symbol = color == 'black' ? '♕' : '♛'
     @move_vectors = [TOP_RIGHT, TOP_LEFT, BOTTOM_RIGHT, BOTTOM_LEFT, UP, DOWN, RIGHT, LEFT]
     @attack_vectors = @move_vectors
     @max_displacement = 1000
@@ -99,7 +99,7 @@ end
 class Rook < ChessPiece
   def initialize(color, position)
     super
-    @symbol = color == 'white' ? '♖' : '♜'
+    @symbol = color == 'black' ? '♖' : '♜'
     @move_vectors = [UP, DOWN, RIGHT, LEFT]
     @attack_vectors = @move_vectors
     @max_displacement = 1000
@@ -109,7 +109,7 @@ end
 class Bishop < ChessPiece
   def initialize(color, position)
     super
-    @symbol = color == 'white' ? '♗' : '♝'
+    @symbol = color == 'black' ? '♗' : '♝'
     @move_vectors = [TOP_RIGHT, TOP_LEFT, BOTTOM_RIGHT, BOTTOM_LEFT]
     @attack_vectors = @move_vectors
     @max_displacement = 1000
@@ -119,7 +119,7 @@ end
 class Knight < ChessPiece
   def initialize(color, position)
     super
-    @symbol = color == 'white' ? '♘' : '♞'
+    @symbol = color == 'black' ? '♘' : '♞'
     @move_vectors = [[2, 1], [2, -1], [-2, 1], [-2, -1], [1, 2], [1, -2], [-1, 2], [-1, -2]]
     @attack_vectors = @move_vectors
     @max_displacement = 1
@@ -129,7 +129,7 @@ end
 class Pawn < ChessPiece
   def initialize(color, position)
     super
-    @symbol = color == 'white' ? '♙' : '♟'
+    @symbol = color == 'black' ? '♙' : '♟'
     @move_vectors = color == 'white' ? [UP] : [DOWN]
     @attack_vectors = color == 'white' ? [TOP_RIGHT, TOP_LEFT] : [BOTTOM_RIGHT, BOTTOM_LEFT]
     @max_displacement = 1

@@ -4,13 +4,20 @@ require_relative 'board'
 require_relative 'player'
 
 class GameEngine
-  def initialize
+  def initialize(file_name = nil)
     @board = Board.new
     @players = [Player.new('white'), Player.new('black')]
     @current_player = @players[0]
     @opponent = @players[1]
     @game_over = false
     @history = []
+    return unless file_name
+
+    File.open(file_name, 'r').each do |line|
+      move = line.scan(/\[\d, \d\]/)
+      make_move(move)
+      switch_players
+    end
   end
 
   def play
@@ -30,14 +37,32 @@ class GameEngine
         display_help
         retry
       rescue SaveException
-        # save game
-        retry
+        begin
+          save_game
+        rescue Errno::ENONET
+          puts 'Invalid file name. Please try again.'
+          sleep(1)
+          retry
+        end
+        next
       rescue QuitException
         @game_over = true
         break
       end
       switch_players
     end
+  end
+
+  def make_move(move)
+    initial = move[0].scan(/\d/).map(&:to_i)
+    final = move[1].scan(/\d/).map(&:to_i)
+    selected_piece = @current_player.pieces.find { |piece| piece.position == initial && !piece.is_dead }
+    @history << [selected_piece.dup, initial, final]
+    all_pieces = @players.map(&:pieces).flatten
+    selected_piece.move(final, all_pieces)
+    return unless selected_piece.is_a?(Pawn) && (selected_piece.position[0].zero? || selected_piece.position[0] == 7)
+
+    @current_player.pieces << selected_piece.promote
   end
 
   private
@@ -119,6 +144,22 @@ class GameEngine
     opponent_king = @opponent.pieces.find { |piece| piece.is_a?(King) && !piece.is_dead }
     @current_player.attacks?(opponent_king.position, @players.map(&:pieces).flatten)
   end
+
+  def save_game
+    system('clear') || system('cls')
+    puts 'Enter the name of the file you want to save the game to:'
+    file_name = gets.chomp
+
+    File.open(file_name, 'w') do |file|
+      @history.each do |move|
+        file.puts move.map(&:to_s).join(' ')
+      end
+    end
+    puts 'Game saved!'
+    sleep(1)
+    puts 'Press Enter to continue...'
+    gets
+  end
 end
 
 class HelpException < StandardError; end
@@ -128,5 +169,3 @@ class QuitException < StandardError; end
 class SaveException < StandardError; end
 
 class InvalidMoveException < StandardError; end
-
-
