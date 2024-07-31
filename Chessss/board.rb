@@ -19,15 +19,15 @@ class Board
     end
   end
 
-  def simulate_move(piece, target_position, all_pieces)
+  def check_after_move?(piece, target_position, all_pieces)
     original_position = piece.position
     captured_piece = all_pieces.find { |p| p.position == target_position && !p.is_dead }
-    piece.move(target_position, all_pieces)
+    piece.simulate_move(target_position)
     captured_piece&.kill
 
     king_in_check = king_in_check?(piece.color, all_pieces)
 
-    piece.move(original_position, all_pieces)
+    piece.simulate_move(original_position)
     captured_piece&.revive
 
     king_in_check

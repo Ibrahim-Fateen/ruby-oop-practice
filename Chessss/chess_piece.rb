@@ -10,7 +10,7 @@ class ChessPiece
   RIGHT = [0, 1].freeze
   LEFT = [0, -1].freeze
 
-  attr_reader :symbol, :position, :color, :is_dead
+  attr_reader :symbol, :position, :color, :is_dead, :has_moved
 
   def initialize(color, position)
     @color = color
@@ -51,6 +51,10 @@ class ChessPiece
     @has_moved = true
   end
 
+  def simulate_move(target_position)
+    @position = target_position
+  end
+
   def kill
     @is_dead = true
   end
@@ -58,10 +62,6 @@ class ChessPiece
   def revive
     @is_dead = false
   end
-
-  protected
-
-  attr_reader :has_moved
 
   private
 
